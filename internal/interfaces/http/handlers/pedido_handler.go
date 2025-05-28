@@ -107,7 +107,7 @@ func (h *PedidoHandler) BuscarPedido(r *gin.Context) {
 
 }
 
-// BuscarPedido godoc
+// AtualizarPedido godoc
 // @Summary Atualiza um pedido a partir de sua Identificação
 // @Description Atualizar um pedido
 // @Tags pedido

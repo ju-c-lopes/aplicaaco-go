@@ -21,8 +21,7 @@ func NewPedidoMysqlRepository(db *sql.DB) repository.PedidoRepository {
 func (pr *pedidoMysqlRepository) CriarPedido(c context.Context, pedido *entities.Pedido) error {
 	tx, err := pr.db.BeginTx(c, nil)
 	if err != nil {
-		return fmt.Errorf("erro ao iniciar transação: %w", err)
-	}
+		return fmt.Errorf("erro ao iniciar transação: %w",
 
 	query := `INSERT INTO Pedido (cliente, totalPedido, tempoEstimado, status, statusPagamento) VALUES (?, ?, ?, ?, ?)`
 	res, err := tx.ExecContext(c, query,
@@ -45,9 +44,9 @@ func (pr *pedidoMysqlRepository) CriarPedido(c context.Context, pedido *entities
 	pedido.ID = int(pedidoID)
 
 	// Inserir produtos relacionados
-	prodQuery := `INSERT INTO Pedido_Produto (idPedido, nomeProduto, quantidade) VALUES (?, ?, ?)`
+	prodQuery := `INSERT INTO Pedido_Produto (idPedido, idProduto, quantidade) VALUES (?, ?, ?)`
 	for _, prod := range pedido.Produtos {
-		_, err := tx.ExecContext(c, prodQuery, pedidoID, prod.Nome, 1)
+		_, err := tx.ExecContext(c, prodQuery, pedidoID, prod.ID, 1)
 		if err != nil {
 			tx.Rollback()
 			return fmt.Errorf("erro ao inserir produto no pedido: %w", err)
@@ -64,6 +63,7 @@ func (pr *pedidoMysqlRepository) BuscarPedido(c context.Context, identificacao i
 	var clienteCPF string
 	var tempoEstimado time.Time
 
+	fmt.Println("TimeStamp: ", pedido.TimeStamp, "ID: ", identificacao)
 	err := pr.db.QueryRowContext(c, query, identificacao).Scan(
 		&pedido.ID,
 		&clienteCPF,
@@ -72,6 +72,7 @@ func (pr *pedidoMysqlRepository) BuscarPedido(c context.Context, identificacao i
 		&pedido.Status,
 		&pedido.StatusPagamento,
 	)
+	fmt.Println("Repository pedido: ", pedido.TimeStamp)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("pedido não encontrado")
