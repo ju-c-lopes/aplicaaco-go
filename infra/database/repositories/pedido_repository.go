@@ -21,7 +21,8 @@ func NewPedidoMysqlRepository(db *sql.DB) repository.PedidoRepository {
 func (pr *pedidoMysqlRepository) CriarPedido(c context.Context, pedido *entities.Pedido) error {
 	tx, err := pr.db.BeginTx(c, nil)
 	if err != nil {
-		return fmt.Errorf("erro ao iniciar transação: %w",
+		return fmt.Errorf("erro ao iniciar transação: %w", err)
+	}
 
 	query := `INSERT INTO Pedido (cliente, totalPedido, tempoEstimado, status, statusPagamento) VALUES (?, ?, ?, ?, ?)`
 	res, err := tx.ExecContext(c, query,
