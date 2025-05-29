@@ -87,7 +87,7 @@ func (s *Server) SetupRoutes() {
 	api.POST("/pedidos", pedidoHandler.CriarPedido)
 	api.GET("/pedidos/:nroPedido", pedidoHandler.BuscarPedido)
 	api.PUT("/pedidos/:nroPedido/status/:status", pedidoHandler.AtualizarStatusPedido)
-	api.POST("/pedidos/listartodos", pedidoHandler.ListarTodosOsPedidos)
+	api.GET("/pedidos/listartodos", pedidoHandler.ListarTodosOsPedidos)
 
 	// Acompanhamento
 	acompUseCase := usecs.NewAcompanhamentoUseCase(s.app.AcompanhamentoRepository)

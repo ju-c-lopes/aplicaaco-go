@@ -33,5 +33,5 @@ func NovoPedidoRouter(env *bootstrap.Env, db *sql.DB, router *gin.RouterGroup) {
 	router.POST("/pedidos", puc.CriarPedido)
 	router.GET("/pedidos/:nroPedido", puc.BuscarPedido)
 	router.PUT("/pedidos/:nroPedido/status/:status", puc.AtualizarStatusPedido)
-	router.POST("/pedidos/listartodos", puc.ListarTodosOsPedidos)
+	router.GET("/pedidos/listartodos", puc.ListarTodosOsPedidos)
 }

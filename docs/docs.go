@@ -569,46 +569,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/produto/editar": {
-            "post": {
-                "description": "Edita um produto",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "produto"
-                ],
-                "summary": "Edita um produto",
-                "parameters": [
-                    {
-                        "description": "Produto",
-                        "name": "cliente",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entities.Produto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/produto/{id}": {
             "get": {
                 "description": "Busca um produto",
@@ -624,8 +584,8 @@ const docTemplate = `{
                 "summary": "Busca um produto",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "id do produto",
+                        "type": "integer",
+                        "description": "ID do produto",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -645,7 +605,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/produto/{nome}": {
             "delete": {
                 "description": "Remove um produto",
                 "consumes": [
@@ -661,8 +623,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id do produto",
-                        "name": "id",
+                        "description": "nome do produto",
+                        "name": "nome",
                         "in": "path",
                         "required": true
                     }
@@ -704,6 +666,44 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/entities.Produto"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Edita um produto existente pelo nome",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "produto"
+                ],
+                "summary": "Edita um produto",
+                "parameters": [
+                    {
+                        "description": "Produto",
+                        "name": "produto",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.Produto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SuccessResponse"
                         }
                     },
                     "400": {
@@ -830,7 +830,7 @@ const docTemplate = `{
         "entities.Pedido": {
             "type": "object",
             "properties": {
-                "clienteCPF": {
+                "cliente_cpf": {
                     "type": "string"
                 },
                 "id": {
@@ -845,16 +845,16 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/entities.StatusPedido"
                 },
-                "statusPagamento": {
+                "status_pagamento": {
                     "type": "string"
                 },
-                "timeStamp": {
+                "time_stamp": {
                     "type": "string"
                 },
                 "total": {
                     "type": "number"
                 },
-                "ultimaAtualizacao": {
+                "ultima_atualizacao": {
                     "type": "string"
                 }
             }
@@ -862,22 +862,22 @@ const docTemplate = `{
         "entities.Produto": {
             "type": "object",
             "properties": {
-                "categoria": {
+                "categoriaProduto": {
                     "$ref": "#/definitions/entities.CatProduto"
                 },
-                "descricao": {
+                "descricaoProduto": {
                     "type": "string"
                 },
-                "identificacao": {
+                "id": {
                     "type": "integer"
                 },
-                "nome": {
+                "nomeProduto": {
                     "type": "string"
                 },
-                "personalizacao": {
-                    "type": "string"
+                "personalizacaoProduto": {
+                    "$ref": "#/definitions/sql.NullString"
                 },
-                "preco": {
+                "precoProduto": {
                     "type": "number"
                 }
             }
@@ -1022,6 +1022,18 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "sql.NullString": {
+            "type": "object",
+            "properties": {
+                "string": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if String is not NULL",
+                    "type": "boolean"
                 }
             }
         },

@@ -49,7 +49,7 @@ definitions:
     type: object
   entities.Pedido:
     properties:
-      clienteCPF:
+      cliente_cpf:
         type: string
       id:
         type: integer
@@ -59,28 +59,28 @@ definitions:
         type: array
       status:
         $ref: '#/definitions/entities.StatusPedido'
-      statusPagamento:
+      status_pagamento:
         type: string
-      timeStamp:
+      time_stamp:
         type: string
       total:
         type: number
-      ultimaAtualizacao:
+      ultima_atualizacao:
         type: string
     type: object
   entities.Produto:
     properties:
-      categoria:
+      categoriaProduto:
         $ref: '#/definitions/entities.CatProduto'
-      descricao:
+      descricaoProduto:
         type: string
-      identificacao:
+      id:
         type: integer
-      nome:
+      nomeProduto:
         type: string
-      personalizacao:
-        type: string
-      preco:
+      personalizacaoProduto:
+        $ref: '#/definitions/sql.NullString'
+      precoProduto:
         type: number
     type: object
   entities.StatusPedido:
@@ -178,6 +178,14 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  sql.NullString:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
     type: object
   time.Duration:
     enum:
@@ -571,40 +579,16 @@ paths:
       tags:
       - produto
   /produto/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Remove um produto
-      parameters:
-      - description: id do produto
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Remove um produto
-      tags:
-      - produto
     get:
       consumes:
       - application/json
       description: Busca um produto
       parameters:
-      - description: id do produto
+      - description: ID do produto
         in: path
         name: id
         required: true
-        type: string
+        type: integer
       produces:
       - application/json
       responses:
@@ -619,18 +603,17 @@ paths:
       summary: Busca um produto
       tags:
       - produto
-  /produto/editar:
-    post:
+  /produto/{nome}:
+    delete:
       consumes:
       - application/json
-      description: Edita um produto
+      description: Remove um produto
       parameters:
-      - description: Produto
-        in: body
-        name: cliente
+      - description: nome do produto
+        in: path
+        name: nome
         required: true
-        schema:
-          $ref: '#/definitions/entities.Produto'
+        type: string
       produces:
       - application/json
       responses:
@@ -642,7 +625,7 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Edita um produto
+      summary: Remove um produto
       tags:
       - produto
   /produtos:
@@ -664,6 +647,31 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Lista todos os produtos no banco
+      tags:
+      - produto
+    put:
+      consumes:
+      - application/json
+      description: Edita um produto existente pelo nome
+      parameters:
+      - description: Produto
+        in: body
+        name: produto
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Produto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Edita um produto
       tags:
       - produto
   /produtos/{categoria}:
