@@ -85,7 +85,8 @@ func (pr *pedidoMysqlRepository) BuscarPedido(c context.Context, identificacao i
 	pedido.ClienteCPF = clienteCPF
 
 	// Buscar produtos
-	prodQuery := `SELECT idProduto FROM Pedido_Produto WHERE idPedido = ?`
+	prodQuery := `SELECT p.idProduto, p.nomeProduto, p.descricaoProduto, p.precoProduto, p.personalizacaoProduto, p.categoriaProduto FROM Produto p JOIN Pedido_Produto pp ON pp.idProduto = p.idProduto WHERE pp.idPedido = ?`
+
 	rows, err := pr.db.QueryContext(c, prodQuery, identificacao)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar produtos do pedido: %w", err)
@@ -94,9 +95,11 @@ func (pr *pedidoMysqlRepository) BuscarPedido(c context.Context, identificacao i
 
 	for rows.Next() {
 		var p entities.Produto
-		if err := rows.Scan(&p.Nome); err != nil {
+		var personalizacao sql.NullString
+		if err := rows.Scan(&p.ID, &p.Nome, &p.Descricao, &p.Preco, &personalizacao, &p.Categoria); err != nil {
 			return nil, fmt.Errorf("erro ao escanear produto: %w", err)
 		}
+		p.Personalizacao = personalizacao
 		pedido.Produtos = append(pedido.Produtos, p)
 	}
 
