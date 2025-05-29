@@ -21,7 +21,7 @@ type Pedido struct {
 	ClienteCPF       string               `json:"cliente_cpf"`
 	Status           StatusPedido         `json:"status"`
 	StatusPagamento  string               `json:"status_pagamento"`
-	TimeStamp        time.Time            `json:"time_stamp"`
+	TimeStamp        string               `json:"time_stamp"`
 	UltimaAtualizacao time.Time           `json:"ultima_atualizacao"`
 	Total            float32              `json:"total"`
 	Produtos         []Produto            `json:"produtos"`
@@ -52,7 +52,7 @@ func PedidoNew(clienteCPF string, produtos []Produto) (*Pedido, error) {
 		ClienteCPF:       clienteCPF,
 		Status:           Pendente,
 		StatusPagamento:  "Pendente",
-		TimeStamp:        now,
+		TimeStamp:        "00:15:00",
 		UltimaAtualizacao: now,
 		Total:            total,
 		Produtos:         produtos,

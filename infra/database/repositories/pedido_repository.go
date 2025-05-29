@@ -21,7 +21,8 @@ func NewPedidoMysqlRepository(db *sql.DB) repository.PedidoRepository {
 func (pr *pedidoMysqlRepository) CriarPedido(c context.Context, pedido *entities.Pedido) error {
 	tx, err := pr.db.BeginTx(c, nil)
 	if err != nil {
-		return fmt.Errorf("erro ao iniciar transação: %w",
+		return fmt.Errorf("erro ao iniciar transação: %w", err)
+	}
 
 	query := `INSERT INTO Pedido (cliente, totalPedido, tempoEstimado, status, statusPagamento) VALUES (?, ?, ?, ?, ?)`
 	res, err := tx.ExecContext(c, query,
@@ -61,7 +62,7 @@ func (pr *pedidoMysqlRepository) BuscarPedido(c context.Context, identificacao i
 
 	var pedido entities.Pedido
 	var clienteCPF string
-	var tempoEstimado time.Time
+	var tempoEstimado string
 
 	fmt.Println("TimeStamp: ", pedido.TimeStamp, "ID: ", identificacao)
 	err := pr.db.QueryRowContext(c, query, identificacao).Scan(
@@ -84,7 +85,7 @@ func (pr *pedidoMysqlRepository) BuscarPedido(c context.Context, identificacao i
 	pedido.ClienteCPF = clienteCPF
 
 	// Buscar produtos
-	prodQuery := `SELECT nomeProduto FROM Pedido_Produto WHERE idPedido = ?`
+	prodQuery := `SELECT idProduto FROM Pedido_Produto WHERE idPedido = ?`
 	rows, err := pr.db.QueryContext(c, prodQuery, identificacao)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar produtos do pedido: %w", err)
