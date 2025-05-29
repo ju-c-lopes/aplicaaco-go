@@ -31,3 +31,7 @@ func (uc *acompanhamentoUseCase) AtualizarStatusPedido(ctx context.Context, idPe
 	fmt.Printf("UseCase: atualizando pedido %d para status %s\n", idPedido, novoStatus)
 	return uc.acompanhamentoRepo.AtualizarStatusPedido(ctx, idPedido, novoStatus)
 }
+
+func (uc *acompanhamentoUseCase) BuscarPedidos(ctx context.Context, idAcompanhamento int) ([]entities.Pedido, error) {
+	return uc.acompanhamentoRepo.BuscarPedidos(ctx, idAcompanhamento)
+}

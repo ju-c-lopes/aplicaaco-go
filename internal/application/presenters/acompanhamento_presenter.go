@@ -3,14 +3,13 @@ package presenters
 import (
 	"fmt"
 	"lanchonete/internal/domain/entities"
-	"time"
 )
 
 // AcompanhamentoDTO representa os dados de um acompanhamento para apresentação
 type AcompanhamentoDTO struct {
 	ID            string      `json:"id"`
 	Pedidos       []PedidoDTO `json:"pedidos"`
-	TempoEstimado int         `json:"tempoEstimado"` // in minutes
+	TempoEstimado string      `json:"tempoEstimado"` // in minutes
 }
 
 // NewAcompanhamentoDTO cria um novo DTO a partir de uma entidade AcompanhamentoPedido
@@ -22,6 +21,6 @@ func NewAcompanhamentoDTO(a *entities.AcompanhamentoPedido) *AcompanhamentoDTO {
 	return &AcompanhamentoDTO{
 		ID:            fmt.Sprintf("%d", a.ID),
 		Pedidos:       pedidos,
-		TempoEstimado: int(time.Until(a.TempoEstimado).Minutes()),
+		TempoEstimado: fmt.Sprintf("%d", a.TempoEstimado),
 	}
 }

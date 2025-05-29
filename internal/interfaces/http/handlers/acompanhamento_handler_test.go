@@ -44,6 +44,15 @@ func (m *MockAcompanhamentoUseCase) CriarAcompanhamento(c context.Context) (int,
 	return 0, nil
 }
 
+// Implements: BuscarPedidos(c context.Context, idAcompanhamento int) ([]entities.Pedido, error)
+func (m *MockAcompanhamentoUseCase) BuscarPedidos(c context.Context, idAcompanhamento int) ([]entities.Pedido, error) {
+	args := m.Called(c, idAcompanhamento)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]entities.Pedido), args.Error(1)
+}
+
 // --- Setup Handler ---
 
 func setupAcompanhamentoHandlerWithMocks() (*AcompanhamentoHandler, *MockAcompanhamentoUseCase, *MockPedidoAtualizarStatusUseCase) {

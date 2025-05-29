@@ -1,15 +1,16 @@
 package server
 
 import (
+	"fmt"
 	"lanchonete/bootstrap"
+	usecs "lanchonete/internal/application/usecases"
 	"lanchonete/internal/interfaces/http/handlers"
 	"lanchonete/usecases"
-	usecs "lanchonete/internal/application/usecases"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Server struct {
@@ -36,6 +37,7 @@ func NewServer(app *bootstrap.App) *Server {
 
 func (s *Server) SetupRoutes() {
 	api := s.router.Group("")
+	fmt.Println("Rota buscar pedidos", s.router.ServeHTTP)
 
 	// Cliente
 	clienteUseCase := usecs.NewClienteUseCase(s.app.ClienteRepository)
@@ -96,7 +98,8 @@ func (s *Server) SetupRoutes() {
 	api.POST("/acompanhamento", acompHandler.CriarAcompanhamento)
 	api.POST("/acompanhamento/:IDAcompanhamento/:IDPedido", acompHandler.AdicionarPedido)
 	api.GET("/acompanhamento/:ID", acompHandler.BuscarAcompanhamento)
-	api.PUT("/acompanhamento/:IDAcompanhamento/pedido/:IDPedido/status", acompHandler.AtualizarStatusPedido)
+	api.PUT("/acompanhamento/:IDAcompanhamento/:IDPedido/:status", acompHandler.AtualizarStatusPedido)
+	api.GET("/acompanhamento/:ID/pedidos", acompHandler.BuscarPedidos)
 
 	// Pagamento — se implementado
 	if s.app.PagamentoRepository != nil {

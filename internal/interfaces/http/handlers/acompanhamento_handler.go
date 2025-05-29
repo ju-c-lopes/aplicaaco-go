@@ -4,7 +4,6 @@ import (
 	"fmt"
 	_ "lanchonete/docs"
 	"lanchonete/internal/application/presenters"
-	"lanchonete/internal/domain/entities"
 	"lanchonete/internal/domain/usecase"
 	response "lanchonete/internal/interfaces/http/responses"
 	"lanchonete/usecases"
@@ -47,7 +46,6 @@ func (ah *AcompanhamentoHandler) CriarAcompanhamento(c *gin.Context) {
 	})
 }
 
-
 // AdicionarPedido godoc
 // @Summary Adiciona um pedido ao acompanhamento
 // @Description Adiciona um pedido existente ao acompanhamento de pedidos
@@ -86,7 +84,6 @@ func (ah *AcompanhamentoHandler) AdicionarPedido(c *gin.Context) {
 		Message: "Pedido adicionado ao acompanhamento com sucesso",
 	})
 }
-
 
 // BuscarAcompanhamento godoc
 // @Summary Busca um acompanhamento
@@ -132,6 +129,7 @@ func (ah *AcompanhamentoHandler) BuscarAcompanhamento(c *gin.Context) {
 // @Failure 404 {object} response.ErrorResponse "Pedido ou acompanhamento não encontrado"
 func (ah *AcompanhamentoHandler) AtualizarStatusPedido(c *gin.Context) {
 	idPedidoStr := c.Param("IDPedido")
+	fmt.Println("IDPedido: ", idPedidoStr)
 
 	idPedido, err := strconv.Atoi(idPedidoStr)
 	if err != nil {
@@ -139,21 +137,47 @@ func (ah *AcompanhamentoHandler) AtualizarStatusPedido(c *gin.Context) {
 		return
 	}
 
-	var statusUpdate StatusUpdateRequest
-	if err := c.ShouldBindJSON(&statusUpdate); err != nil {
-		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	err = ah.AcompanhamentoUseCase.AtualizarStatusPedido(c, idPedido, entities.StatusPedido(statusUpdate.Status))
+	peds, err := ah.AcompanhamentoUseCase.BuscarPedidos(c, idPedido)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
+	fmt.Println("Pedidos encontrados: ", peds)
+
 	c.JSON(http.StatusOK, response.SuccessResponse{
 		Message: "Status do pedido atualizado com sucesso",
 	})
+}
+
+// BuscarPedidos godoc
+// @Summary Busca os pedidos de um acompanhamento
+// @Description Busca os pedidos associados a um acompanhamento
+// @Tags acompanhamento
+// @Router /acompanhamento/{ID}/pedidos [get]
+// @Accept json
+// @Produce json
+// @Param ID path string true "ID do acompanhamento"
+// @Success 200 {object} []entities.Pedido
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse "Acompanhamento não encontrado"
+// @Failure 500 {object} response.ErrorResponse "Erro interno"
+func (h *AcompanhamentoHandler) BuscarPedidos(ctx *gin.Context) {
+	fmt.Println("Handler: ", ctx.Param("ID"))
+	idAcompanhamentoStr := ctx.Param("ID")
+	idAcompanhamento, err := strconv.Atoi(idAcompanhamentoStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "ID inválido"})
+		return
+	}
+
+	pedidos, err := h.AcompanhamentoUseCase.BuscarPedidos(ctx, idAcompanhamento)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, pedidos)
 }
 
 type StatusUpdateRequest struct {

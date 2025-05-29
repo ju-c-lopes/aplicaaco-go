@@ -47,7 +47,7 @@ func TestCriarAcompanhamento_Completo(t *testing.T) {
 	acomp := &entities.AcompanhamentoPedido{
 		ID:                1,
 		Pedidos:           []entities.Pedido{},
-		TempoEstimado:     time.Now().Add(20 * time.Minute),
+		TempoEstimado:     "00:15:00", // 15 minutes
 		UltimaAtualizacao: time.Now(),
 	}
 

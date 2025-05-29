@@ -77,7 +77,8 @@ func (r *acompanhamentoMySQLRepository) BuscarFila(ctx context.Context, idAcompa
 		pedidos = append(pedidos, p)
 	}
 
-	var tempoEstimado, ultimaAtualizacao time.Time
+	var ultimaAtualizacao time.Time
+	var tempoEstimado string
 	err = r.db.QueryRowContext(ctx,
 		`SELECT tempoEstimado, ultimaAtualizacao FROM Acompanhamento WHERE idAcompanhamento = ?`, idAcompanhamento).
 		Scan(&tempoEstimado, &ultimaAtualizacao)
@@ -95,7 +96,8 @@ func (r *acompanhamentoMySQLRepository) BuscarFila(ctx context.Context, idAcompa
 
 // BuscarAcompanhamento implements repository.AcompanhamentoRepository.
 func (r *acompanhamentoMySQLRepository) BuscarAcompanhamento(ctx context.Context, idAcompanhamento int) (*entities.AcompanhamentoPedido, error) {
-	var tempoEstimado, ultimaAtualizacao time.Time
+	var ultimaAtualizacao time.Time
+	var tempoEstimado string
 	err := r.db.QueryRowContext(ctx,
 		`SELECT tempoEstimado, ultimaAtualizacao FROM Acompanhamento WHERE idAcompanhamento = ?`, idAcompanhamento).
 		Scan(&tempoEstimado, &ultimaAtualizacao)
@@ -109,3 +111,84 @@ func (r *acompanhamentoMySQLRepository) BuscarAcompanhamento(ctx context.Context
 		UltimaAtualizacao: ultimaAtualizacao,
 	}, nil
 }
+
+func (r *acompanhamentoMySQLRepository) BuscarPedidos(ctx context.Context, idPedido int) ([]entities.Pedido, error) {
+	query := `
+		SELECT 
+			p.idPedido, 
+			p.cliente, 
+			c.nomeCliente, 
+			p.totalPedido, 
+			p.tempoEstimado, 
+			p.status, 
+			p.statusPagamento
+		FROM FilaPedidos f
+		JOIN Pedido p ON f.idPedido = p.idPedido
+		JOIN Cliente c ON p.cliente = c.cpfCliente
+		WHERE f.idAcompanhamento = ?
+		ORDER BY f.ordem;
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, idPedido)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar pedidos da fila: %w", err)
+	}
+	defer rows.Close()
+
+	var pedidos []entities.Pedido
+
+	for rows.Next() {
+		var p entities.Pedido
+		var tempoEstimado string
+		var clienteCPF string
+		var clienteNome string
+
+		if err := rows.Scan(
+			&p.ID,
+			&clienteCPF,
+			&clienteNome,
+			&p.Total,
+			&tempoEstimado,
+			&p.Status,
+			&p.StatusPagamento,
+		); err != nil {
+			return nil, fmt.Errorf("erro ao escanear pedido: %w", err)
+		}
+
+		p.ClienteCPF = fmt.Sprintf("%s - %s", clienteCPF, clienteNome)
+		p.Produtos = []entities.Produto{}
+
+		// Buscar produtos
+		prodQuery := `SELECT pr.idProduto, pr.nomeProduto, pr.descricaoProduto, pr.precoProduto, pr.personalizacaoProduto, pr.categoriaProduto FROM Pedido_Produto pp JOIN Produto pr ON pp.idProduto = pr.idProduto WHERE pp.idPedido = ?`
+		prodRows, err := r.db.QueryContext(ctx, prodQuery, p.ID)
+		if err != nil {
+			return nil, fmt.Errorf("erro ao buscar produtos do pedido: %w", err)
+		}
+
+		for prodRows.Next() {
+			var prod entities.Produto
+			var personalizacao sql.NullString
+
+			if err := prodRows.Scan(
+				&prod.ID,
+				&prod.Nome,
+				&prod.Descricao,
+				&prod.Preco,
+				&personalizacao,
+				&prod.Categoria,
+			); err != nil {
+				prodRows.Close()
+				return nil, fmt.Errorf("erro ao escanear produto: %w", err)
+			}
+
+			prod.Personalizacao = personalizacao
+			p.Produtos = append(p.Produtos, prod)
+		}
+		prodRows.Close()
+
+		pedidos = append(pedidos, p)
+	}
+
+	return pedidos, nil
+}
+

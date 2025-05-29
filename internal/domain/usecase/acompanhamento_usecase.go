@@ -10,4 +10,5 @@ type AcompanhamentoUseCase interface {
 	AdicionarPedido(ctx context.Context, idAcompanhamento int, idPedido int) error
 	BuscarAcompanhamento(ctx context.Context, idAcompanhamento int) (*entities.AcompanhamentoPedido, error)
 	AtualizarStatusPedido(ctx context.Context, idPedido int, novoStatus entities.StatusPedido) error
+	BuscarPedidos(ctx context.Context, idPedido int) ([]entities.Pedido, error)
 }
