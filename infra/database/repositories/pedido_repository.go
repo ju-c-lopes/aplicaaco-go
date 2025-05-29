@@ -146,12 +146,12 @@ func (pr *pedidoMysqlRepository) ListarTodosOsPedidos(c context.Context) ([]*ent
 		datetimeStr := dataHoje + " " + tempoEstimadoStr  // data fixa arbitrária
 
 		// parse para time.Time completo
-		tempoEstimado, err := time.Parse("2006-01-02 15:04:05", datetimeStr)
+		_, err := time.Parse("2006-01-02 15:04:05", datetimeStr)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao converter tempoEstimado: %w", err)
 		}
 					
-		p.TimeStamp = tempoEstimado
+		p.TimeStamp = "00:15:00"  // Definindo um valor fixo para o TimeStamp
 		p.ClienteCPF = clienteCPF
 		p.Produtos = []entities.Produto{}
 
