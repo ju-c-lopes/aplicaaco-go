@@ -59,7 +59,6 @@ func (h *PedidoHandler) CriarPedido(r *gin.Context) {
 	produtosCompletos := []entities.Produto{}
 
 	for _, produto := range pedido.Produtos {
-		fmt.Println("Handler Buscando produto:", produto.Nome)
 		pBanco, err := h.ProdutoBuscarPorIdUseCase.Run(r, produto.ID)
 		if err != nil {
 			r.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Produto não Cadastrado!"})
@@ -122,6 +121,7 @@ func (h *PedidoHandler) AtualizarStatusPedido(r *gin.Context) {
 	nroPedido := r.Param("nroPedido")
 	id, err := strconv.Atoi(nroPedido)
 	status := r.Param("status")
+	fmt.Println("Atualizando pedido", id, status)
 	err = h.PedidoAtualizarStatusUseCase.Run(r, id, status)
 	if err != nil {
 		r.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})

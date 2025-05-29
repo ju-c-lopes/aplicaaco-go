@@ -27,6 +27,7 @@ CREATE TABLE `Pedido` (
   `cliente` VARCHAR(11) NOT NULL,
   `totalPedido` FLOAT NOT NULL DEFAULT 0,
   `tempoEstimado` TIME NOT NULL DEFAULT '00:15:00',
+  `ultimaAtualizacao` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` VARCHAR(50) DEFAULT 'Pendente',
   `statusPagamento` VARCHAR(50) DEFAULT 'Pendente',
   PRIMARY KEY (`idPedido`),
