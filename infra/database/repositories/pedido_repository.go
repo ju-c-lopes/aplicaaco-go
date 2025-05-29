@@ -125,40 +125,82 @@ func (pr *pedidoMysqlRepository) ListarTodosOsPedidos(c context.Context) ([]*ent
 	for rows.Next() {
 		var p entities.Pedido
 		var clienteCPF string
-		var tempoEstimado time.Time
+		var tempoEstimadoStr string
 
 		if err := rows.Scan(
 			&p.ID,
 			&clienteCPF,
 			&p.Total,
-			&tempoEstimado,
+			&tempoEstimadoStr,
 			&p.Status,
 			&p.StatusPagamento,
 		); err != nil {
 			return nil, fmt.Errorf("erro ao escanear pedido: %w", err)
 		}
 
+		// pega a data atual (ano, mês e dia)
+		now := time.Now()
+		dataHoje := now.Format("2006-01-02")  // ex: "2025-05-28"
+
+		// concatena uma data fixa com o horário recebido
+		datetimeStr := dataHoje + " " + tempoEstimadoStr  // data fixa arbitrária
+
+		// parse para time.Time completo
+		tempoEstimado, err := time.Parse("2006-01-02 15:04:05", datetimeStr)
+		if err != nil {
+			return nil, fmt.Errorf("erro ao converter tempoEstimado: %w", err)
+		}
+					
+		p.TimeStamp = tempoEstimado
 		p.ClienteCPF = clienteCPF
 		p.Produtos = []entities.Produto{}
 
-		// Buscar produtos do pedido
-		prodQuery := `SELECT nomeProduto FROM Pedido_Produto WHERE idPedido = ?`
-		prodRows, err := pr.db.QueryContext(c, prodQuery, p.ID)
+		// Buscar ids dos produtos do pedido
+		prodIDsQuery := `SELECT idProduto FROM Pedido_Produto WHERE idPedido = ?`
+		prodIDRows, err := pr.db.QueryContext(c, prodIDsQuery, p.ID)
 		if err != nil {
-			return nil, fmt.Errorf("erro ao buscar produtos: %w", err)
+			return nil, fmt.Errorf("erro ao buscar ids dos produtos: %w", err)
 		}
 
-		for prodRows.Next() {
-			var prod entities.Produto
-			if err := prodRows.Scan(&prod.Nome); err != nil {
-				prodRows.Close()
-				return nil, fmt.Errorf("erro ao escanear produto: %w", err)
+		var produtos []entities.Produto
+
+		for prodIDRows.Next() {
+			var idProduto int
+			if err := prodIDRows.Scan(&idProduto); err != nil {
+				prodIDRows.Close()
+				return nil, fmt.Errorf("erro ao escanear idProduto: %w", err)
 			}
-			p.Produtos = append(p.Produtos, prod)
+
+			// Busca nomeProduto para esse idProduto
+			nomeQuery := `SELECT nomeProduto FROM Produto WHERE idProduto = ?`
+			var nomeProduto string
+			err = pr.db.QueryRowContext(c, nomeQuery, idProduto).Scan(&nomeProduto)
+			if err != nil {
+				prodIDRows.Close()
+				return nil, fmt.Errorf("erro ao buscar nomeProduto para id %d: %w", idProduto, err)
+			}
+
+			p := entities.Produto{
+				ID: idProduto,
+				Nome:   nomeProduto,
+			}
+
+			produtos = append(produtos, p)
 		}
-		prodRows.Close()
+		prodIDRows.Close()
+
+		if err := prodIDRows.Err(); err != nil {
+			return nil, fmt.Errorf("erro na iteração dos ids dos produtos: %w", err)
+		}
+
+		// Atribui a lista de produtos ao pedido
+		p.Produtos = produtos
 
 		pedidos = append(pedidos, &p)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("erro na iteração dos pedidos: %w", err)
 	}
 
 	return pedidos, nil
