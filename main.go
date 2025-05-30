@@ -34,7 +34,6 @@ func main() {
 
 	// Create and configure HTTP server
 	srv := server.NewServer(app)
-	srv.SetupRoutes()
 
 	// Start server in a goroutine
 	go func() {

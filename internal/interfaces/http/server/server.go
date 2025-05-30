@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"lanchonete/bootstrap"
 	usecs "lanchonete/internal/application/usecases"
 	"lanchonete/internal/interfaces/http/handlers"
@@ -37,7 +36,6 @@ func NewServer(app *bootstrap.App) *Server {
 
 func (s *Server) SetupRoutes() {
 	api := s.router.Group("")
-	fmt.Println("Rota buscar pedidos", s.router.ServeHTTP)
 
 	// Cliente
 	clienteUseCase := usecs.NewClienteUseCase(s.app.ClienteRepository)
