@@ -23,6 +23,8 @@ type Server struct {
 
 func NewServer(app *bootstrap.App) *Server {
 	router := gin.Default()
+	
+	fmt.Printf("🆕 Instância de Server criada: %p\n", router)
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
