@@ -216,6 +216,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/acompanhamento/{ID}/pedidos": {
+            "get": {
+                "description": "Busca os pedidos associados a um acompanhamento",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "acompanhamento"
+                ],
+                "summary": "Busca os pedidos de um acompanhamento",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do acompanhamento",
+                        "name": "ID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entities.Pedido"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Acompanhamento não encontrado",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/cliente": {
             "post": {
                 "description": "Cria um cliente",
@@ -770,10 +823,10 @@ const docTemplate = `{
                         "$ref": "#/definitions/entities.Pedido"
                     }
                 },
-                "tempoEstimado": {
+                "tempo_estimado": {
                     "type": "string"
                 },
-                "ultimaAtualizacao": {
+                "ultima_atualizacao": {
                     "type": "string"
                 }
             }
@@ -922,7 +975,7 @@ const docTemplate = `{
                 },
                 "tempoEstimado": {
                     "description": "in minutes",
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },

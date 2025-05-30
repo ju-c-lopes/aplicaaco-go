@@ -109,6 +109,10 @@ func (s *Server) SetupRoutes() {
 		// api.POST("/pagamento", pagamentoHandler.CriarPagamento)
 	}
 
+	api.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
 	// Swagger Docs
 	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

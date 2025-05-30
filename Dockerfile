@@ -18,16 +18,16 @@ COPY . .
 RUN cat bootstrap/env.go && CGO_ENABLED=0 go build -o main .
 
 # Etapa 2: imagem final enxuta
-FROM alpine:latest
+FROM gcr.io/distroless/static:nonroot
 
 # Define diretório de trabalho final
-WORKDIR /root/
+WORKDIR /
 
 # Copia binário gerado na etapa anterior
-COPY --from=builder /app/main .
+COPY --from=builder /app/main /main
 
 # Expõe a porta usada pela aplicação (ajuste se necessário)
 EXPOSE 8080
 
 # Comando que será executado ao iniciar o container
-CMD ["./main"]
+CMD ["/main"]

@@ -1,1 +1,21 @@
 mysql_data/
+
+# Binários
+/main
+*.out
+
+# Ambiente Go
+vendor/
+*.exe
+*.log
+*.test
+*.mod
+
+# Variáveis locais
+.env
+*.env
+
+# Editor e IDEs
+.vscode/
+.idea/
+*.swp
