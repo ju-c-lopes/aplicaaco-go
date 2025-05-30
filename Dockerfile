@@ -15,7 +15,7 @@ RUN go mod download
 COPY . .
 
 # Compila a aplicação Go
-RUN cat bootstrap/env.go && CGO_ENABLED=0 go build -o main .
+RUN CGO_ENABLED=0 go build -o main .
 
 # Etapa 2: imagem final enxuta
 FROM gcr.io/distroless/static:nonroot
