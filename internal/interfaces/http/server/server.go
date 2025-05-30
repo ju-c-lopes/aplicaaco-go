@@ -118,5 +118,6 @@ func (s *Server) SetupRoutes() {
 }
 
 func (s *Server) Start() error {
+	s.SetupRoutes()
 	return s.router.Run(s.app.Env.ServerAddress)
 }
